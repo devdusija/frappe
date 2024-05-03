@@ -486,8 +486,14 @@ def add_total_row(result, columns, meta=None, is_tree=False, parent_field=None):
 		if fieldtype == "Link" and options == "Currency":
 			total_row[i] = result[0].get(fieldname) if isinstance(result[0], dict) else result[0][i]
 
-	for i in has_percent:
-		total_row[i] = flt(total_row[i]) / len(result)
+	if is_tree:
+		num_parents = len(set([row[parent_field] for row in result if row.get(parent_field)]))
+		for i in has_percent:
+			total_row[i] = flt(total_row[i]) / num_parents if num_parents != 0 else flt(total_row[i]) / len(result)
+	else:
+    # For non-tree structures, calculate percentages based on the total number of rows
+		for i in has_percent:
+			total_row[i] = flt(total_row[i]) / len(result) if len(result) != 0 else 0
 
 	first_col_fieldtype = None
 	if isinstance(columns[0], str):
